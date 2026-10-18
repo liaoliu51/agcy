@@ -1,25 +1,32 @@
-'use strict';
 /**
- * QuantHub —— Cloudflare Worker 入口
+ * QuantHub —— Cloudflare Worker 入口（ES Module 格式）
  *
- * 与server.js 共用同一套 lib/ 逻辑（行情解析 / 资讯聚合 / 规则引擎）。
- * 静态资源通过 Workers Assets 绑定（wrangler.toml的 [assets]）直接托管，
+ * 与 server.js 共用同一套 lib/ 逻辑（行情解析 / 资讯聚合 / 规则引擎）。
+ * 静态资源通过 Workers Assets 绑定（wrangler.toml 的 [assets]）直接托管，
  * Worker 只负责 /api/* 路由。
  *
  * 运行时约束与对策：
- *  1. 无文件系统→ chain.json / mapping.json 通过 import 静态引入（Wrangler 打包期内联）
- *  2. 无常驻进程     → 用「请求触发 + 内存 TTL 缓存」，并用 Cache API 做跨请求共享
- *  3. 无 Node http    → lib/http.js 已改为 fetch 优先
- *  4. 出口 IP 在境外  → 腾讯/新浪/同花顺/东财可能不通，/api/health 会如实报告，
- *                       前端据此自动降级为「浏览器直连腾讯行情 + script 注入」模式
+ *  1. 无文件系统   → chain.json / mapping.json 静态 import（打包期内联）
+ *  2. 无常驻进程   → 「请求触发 + 内存 TTL 缓存」
+ *  3. 无 Node http → lib/http.js 优先用全局 fetch；Node 专用回退分支已惰性化，打包器不会命中
+ *  4. 出口 IP 在境外 → 腾讯/新浪/同花顺/东财可能不通，/api/health 如实报告，
+ *                      前端据此自动降级为浏览器直连腾讯行情模式
+ *
+ * ⚠️ 踩坑记录：不能用 createRequire(import.meta.url) —— workerd 运行时
+ * import.meta.url 为 undefined，createRequire 直接抛 TypeError 导致 Worker 起不来。
+ * lib/ 是 CommonJS，用 esbuild 的 ESM default-import 互操作即可。
  */
 
-const { fetchQuotes, marketSession } = require('../lib/quotes');
-const { fetchNews } = require('../lib/news');
-const { buildReport } = require('../lib/analyzer');
+// lib/ 为 CommonJS，经 esbuild 打包后以下 default import 可直接拿到 module.exports
+import quotes from '../lib/quotes.js';
+import newsLib from '../lib/news.js';
+import analyzer from '../lib/analyzer.js';
+import chain from '../data/chain.json';
+import mapping from '../data/mapping.json';
 
-const chain = require('../data/chain.json');
-const mapping = require('../data/mapping.json');
+const { fetchQuotes, marketSession } = quotes;
+const { fetchNews } = newsLib;
+const { buildReport } = analyzer;
 
 /* ---------------- 缓存 ---------------- */
 const QUOTES_TTL = 4000;   // 5秒刷新要求 → 服务端 4s 兜底
@@ -162,7 +169,7 @@ async function handleApi(pathname, search, request) {
   return json({ error: 'not found' }, 404);
 }
 
-module.exports = {
+export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const p = url.pathname;

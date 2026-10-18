@@ -67,18 +67,36 @@ node server.js
 
 ## 部署到 Cloudflare Workers
 
+代码仓库：https://github.com/liaoliu51/agcy （private，分支 `main`）
+
+**推荐方式：GitHub 自动同步**（配一次，以后 `git push` 即自动部署）
+
+1. 先在 https://github.com/settings/installations 给 **Cloudflare Workers and Pages** 授权 `agcy` 仓库
+   （App 默认只认`Only select repositories`，不加进去 Cloudflare 面板看不到该仓库）
+2. Cloudflare 面板 → Workers & Pages → Create application → **Connect to GitHub** → 选 `agcy`
+3. 构建设置：生产分支 `main`｜Build command `npm install`｜Deploy command `npx wrangler deploy`｜Root directory 留空
+
+**备选：命令行部署**
+
 ```bash
-npm install -g wrangler   # 或 npx wrangler
-wrangler login
-npm run deploy
+npm install
+npx wrangler login
+npx wrangler deploy
 ```
 
-部署完成后访问 `https://quanthub.<你的子域>.workers.dev`。
+**本地验证（改完代码先跑，能提前发现部署问题）**
+
+```bash
+npx wrangler deploy --dry-run      # 只验证打包，5 秒出结果
+npx wrangler dev --local --port 8899   # 真实 workerd 运行时，最严格
+```
 
 > **关于国内数据源**：Cloudflare Workers 出口 IP 在境外，可能无法访问腾讯/新浪等国内接口。
-> 此时前端会自动切换到「浏览器直连模式」—— 行情由用户浏览器直连腾讯自选股（script注入 + 浏览器原生 GBK 解码，绕开 CORS），**功能完全一致**。
+> 此时前端会自动切换到「浏览器直连模式」—— 行情由用户浏览器直连腾讯自选股（script 注入 + 浏览器原生 GBK 解码，绕开 CORS），**功能完全一致**。
 > 资讯与日报依赖服务端抓取，若境外出口不通则该两页数据为空。
 > 访问 `/api/health` 可查看各源实际连通情况。
+
+> **已验证**：真实 workerd 运行时下，行情 92/92（228ms，GBK 中文名解码正确）、资讯 120 条四源零失败、日报三段传导链全部识别、静态资源全部 200。
 
 ---
 
