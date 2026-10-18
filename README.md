@@ -4,6 +4,12 @@
 
 基于自建的七层产业链框架 + 规则引擎，实时抓取 A股/港股/美股行情与财经快讯，输出可追溯的投资分析日报。
 
+## 🌐 线上地址
+
+**https://quanthub.liaoshishuang.workers.dev**
+
+代码仓库：https://github.com/liaoliu51/agcy （private，分支 `main`）
+
 ---
 
 ## 能力
