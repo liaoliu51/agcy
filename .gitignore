@@ -1,0 +1,9 @@
+node_modules/
+.wrangler/
+hub.log
+hub.err
+*.log
+.DS_Store
+.env
+.env.*
+dev.vars

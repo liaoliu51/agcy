@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QuantHub · AI产业链事件驱动交易框架</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%2316386b'/><text x='16' y='23' font-size='19' font-weight='bold' fill='white' text-anchor='middle' font-family='sans-serif'>Q</text></svg>">
+<link rel="stylesheet" href="/app.css">
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="logo">Q</div>
+    <div>
+      <h1>QuantHub</h1>
+      <p>AI产业链事件驱动交易框架 · 实时行情与投研工作台</p>
+    </div>
+  </div>
+  <div class="hud">
+    <div class="hud-item"><span class="hud-label">北京时间</span><span class="hud-val" id="bjTime">--:--:--</span></div>
+    <div class="hud-item"><span class="hud-label">A股</span><span class="hud-val" id="sA">--</span></div>
+    <div class="hud-item"><span class="hud-label">港股</span><span class="hud-val" id="sHK">--</span></div>
+    <div class="hud-item"><span class="hud-label">美股</span><span class="hud-val" id="sUS">--</span></div>
+    <div class="hud-item"><span class="hud-label">刷新</span><span class="hud-val" id="refreshInfo">--</span></div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button class="tab active" data-tab="market">实时行情</button>
+  <button class="tab" data-tab="news">财经资讯</button>
+  <button class="tab" data-tab="chain">产业链图谱</button>
+  <button class="tab" data-tab="report">投资分析日报</button>
+</nav>
+
+<main>
+  <!-- ============ 模块1 实时行情 ============ -->
+  <section class="pane active" id="pane-market">
+    <div class="toolbar">
+      <div class="filters">
+        <select id="fltMarket"><option value="">全部市场</option><option>A股</option><option>港股</option><option>美股</option><option>A股指数</option><option>港股指数</option><option>美股指数</option></select>
+        <select id="fltGroup"><option value="">全部板块</option></select>
+        <input type="search" id="fltSearch" placeholder="搜索名称/代码…">
+      </div>
+      <div class="toolbar-right">
+        <label class="chk"><input type="checkbox" id="onlyIdx"> 仅看指数</label>
+        <button class="btn" id="btnEdit">管理自选</button>
+        <button class="btn" id="btnRefresh">立即刷新</button>
+      </div>
+    </div>
+    <div class="notice" id="mktNotice"></div>
+    <div class="quote-wrap"><table class="quote-table"><thead id="qHead"></thead><tbody id="qBody"></tbody></table></div>
+  </section>
+
+  <!-- ============ 模块2 财经资讯 ============ -->
+  <section class="pane" id="pane-news">
+    <div class="toolbar">
+      <div class="filters">
+        <select id="nCat"><option value="">全部分类</option><option>科技产业</option><option>宏观政策</option><option>市场</option><option>行业</option><option>宏观</option></select>
+        <select id="nLayer"><option value="">全部产业链层</option></select>
+        <label class="chk"><input type="checkbox" id="nTagged"> 仅看命中产业链</label>
+      </div>
+      <div class="toolbar-right"><span class="muted" id="newsStat"></span></div>
+    </div>
+    <div class="notice" id="newsNotice"></div>
+    <div id="newsList" class="news-list"></div>
+  </section>
+
+  <!-- ============ 模块3 产业链图谱 ============ -->
+  <section class="pane" id="pane-chain">
+    <div id="chainView"></div>
+  </section>
+
+  <!-- ============ 模块4 投资分析日报 ============ -->
+  <section class="pane" id="pane-report">
+    <div class="toolbar"><div class="toolbar-right"><span class="muted" id="repStat"></span><button class="btn" id="btnRepRep">重新生成</button></div></div>
+    <div id="reportView"></div>
+  </section>
+</main>
+
+<!-- 自选股管理弹窗 -->
+<div class="modal" id="modalEdit">
+  <div class="modal-box">
+    <div class="modal-head"><h3>管理自选股</h3><button class="btn-x" id="btnCloseModal">×</button></div>
+    <div class="modal-body">
+      <p class="muted">腾讯自选股代码格式：A股 <code>sh600519</code>/<code>sz300502</code>，港股 <code>hk00700</code>，美股 <code>usAAPL</code>（不带交易所后缀），A股指数 <code>s_sh000001</code>，港股指数 <code>r_hkHSI</code>，美股指数 <code>usIXIC</code></p>
+      <div class="add-row">
+        <input id="inCode" placeholder="代码 如 sh600519">
+        <input id="inName" placeholder="名称（可空）">
+        <select id="inMarket"><option>A股</option><option>港股</option><option>美股</option><option>A股指数</option><option>港股指数</option><option>美股指数</option></select>
+        <input id="inGroup" placeholder="板块分组（可空）">
+        <button class="btn primary" id="btnAdd">添加</button>
+      </div>
+      <div class="edit-list" id="editList"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" id="btnCancelEdit">取消</button>
+      <button class="btn primary" id="btnSaveWatch">保存并生效</button>
+    </div>
+  </div>
+</div>
+
+<footer class="foot">
+  <p><b>数据源</b>：行情＝腾讯自选股公开接口（美股延迟约15分钟，非交易所Level-2）｜资讯＝新浪7×24 / 同花顺 / 东方财富 / 新浪财经</p>
+  <p><b>刷新机制</b>：行情轮询 5 秒（页面停留超30分钟自动降频至15秒省流）｜资讯服务端 60 秒抓取一次</p>
+  <p class="warn"><b>风险提示</b>：本工具为规则引擎基于公开信息的自动推演，仅代表板块级方向观察，<b>不构成投资建议，不含个股买卖点与目标价</b>。所有结论虽可追溯至具体资讯与产业链层位置，但资讯源本身可能存在偏差。股市有风险，投资需谨慎。</p>
+</footer>
+
+<script src="/direct.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>

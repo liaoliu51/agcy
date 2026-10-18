@@ -1,0 +1,20 @@
+{
+  "name": "quanthub",
+  "version": "1.0.0",
+  "private": true,
+  "description": "QuantHub —— AI 产业链事件驱动交易框架·实时行情与投研工作台",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "dev:cf": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "wrangler": "^3.90.0"
+  }
+}

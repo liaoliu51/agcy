@@ -1,0 +1,161 @@
+{
+  "version": "1.0",
+  "updated": "2026-10-18",
+  "desc": "AI产业链七层栈式框架 · 廖势无双事件驱动交易框架",
+  "layers": [
+    {
+      "id": "energy",
+      "idx": 1,
+      "name": "能源层",
+      "alias": ["电力", "AIDC电力", "燃气轮机", "燃机", "储能", "电网", "变压器", "核电", "供电"],
+      "role": "最上游 · 硬约束",
+      "hardConstraint": "电费占AI运营成本>60%；电网改造周期5-10年；锂电储能仅支撑0.5-4小时，无法承载万卡级基荷",
+      "logic": "算力规模扩张→电费占比攀升→电网扩容来不及→自备燃机（12-16个月交付）+液冷余热回收",
+      "verdict": "确定性最高、弹性最慢，适合左侧布局",
+      "star": 4,
+      "congestion": "低",
+      "tradeValue": "周期长，订单确认早，是产业景气领先指标"
+    },
+    {
+      "id": "datacenter",
+      "idx": 2,
+      "name": "机房层",
+      "alias": ["AIDC", "IDC", "智算中心", "数据中心", "算力租赁", "机柜", "超节点", "模块化预制"],
+      "role": "AIDC载体",
+      "hardConstraint": "单机柜100kW→300kW→1MW；PUE从1.5压至1.08-1.15；建设周期压缩至传统1/3",
+      "logic": "算力军备竞赛→机柜功率密度跃升→土建模式失效→转向全预制模块化",
+      "verdict": "订单确认最早，景气验证最直接",
+      "star": 4,
+      "congestion": "中",
+      "tradeValue": "类公用事业属性，现金流可验证，防御型"
+    },
+    {
+      "id": "cooling",
+      "idx": 3,
+      "name": "液冷/温控层",
+      "alias": ["液冷", "散热", "冷板", "浸没", "CDU", "均温板", "水冷", "导热凝胶", "温控", "PUE", "热电"],
+      "role": "强绑定环节",
+      "hardConstraint": "液冷占数据中心总能耗20%-30%；A1方案适配160kW/柜(PUE≤1.20)，A2方案适配200kW/柜(PUE≤1.15)",
+      "logic": "功率密度越高压冷越刚性；冷板液冷同时受益AI数据中心与机器人轻量化配套",
+      "verdict": "高确定性+高弹性，且跨AI/机器人双赛道复用",
+      "star": 5,
+      "congestion": "低",
+      "tradeValue": "双应用赛道，确定性与弹性兼备"
+    },
+    {
+      "id": "chip",
+      "idx": 4,
+      "name": "芯片层",
+      "alias": ["GPU", "国产GPU", "ASIC", "CPU", "超节点", "昇腾", "CUDA", "先进封装", "Chiplet", "CoWoS", "晶圆", "代工", "流片", "算力芯片", "ASIC芯片"],
+      "role": "算力核心",
+      "hardConstraint": "国产单卡性能落后英伟达先进制程→只能靠机柜/超节点体系能力补齐；先进封装产能是CPO路线卡口",
+      "logic": "单卡差距→体系能力弥补→超节点/万卡集群成为竞争主战场",
+      "verdict": "国产替代弹性最大，但也是估值泡沫最集中处",
+      "star": 4,
+      "congestion": "高",
+      "tradeValue": "叙事驱动为主，需2026年报营收放量验证"
+    },
+    {
+      "id": "interconnect",
+      "idx": 5,
+      "name": "互联层（当前最大瓶颈）",
+      "alias": ["光模块", "光通信", "CPO", "NPO", "SNPO", "硅光", "薄膜铌酸锂", "磷化铟", "光芯片", "800G", "1.6T", "交换机", "光引擎", "PCB", "CCL", "封装基板", "铜缆", "互联", "USFP", "万卡集群", "超节点"],
+      "role": "当前最大瓶颈",
+      "hardConstraint": "瓶颈已从单卡性能转移到芯片间互联；铜缆传输距离受限功耗高；海外CPO依赖先进封装产能，国产走可插拔NPO/SNPO规避卡口",
+      "logic": "万卡集群扩大→卡间互联成瓶颈→铜缆失效→光互联刚需→光引擎替代光模块，价值重心上移",
+      "verdict": "当下最强主线，但拥挤度最高",
+      "star": 5,
+      "congestion": "极高",
+      "tradeValue": "景气最确定但估值最贵，等回调不追高"
+    },
+    {
+      "id": "memory",
+      "idx": 6,
+      "name": "存储层",
+      "alias": ["存储", "HBM", "DRAM", "NAND", "SSD", "企业级SSD", "利基存储", "内存接口", "闪存", "晶圆", "QLC", "内存", "存储芯片"],
+      "role": "涨价传导最直接",
+      "hardConstraint": "HBM单位晶圆消耗量为DDR5的3倍以上且良率爬坡难，扩HBM结构性排挤传统DRAM/NAND产能；有效位元供给要到2027下半年才落地",
+      "logic": "AI训练+推理+Agent向量检索→高带宽大容量存储需求爆发→结构性产能错配→涨价持续",
+      "verdict": "涨价传导最直接、业绩兑现最快",
+      "star": 5,
+      "congestion": "高",
+      "tradeValue": "唯一涨价已落到报表的环节，回调后首选承接方向"
+    },
+    {
+      "id": "model",
+      "idx": 7,
+      "name": "模型/Agent层",
+      "alias": ["大模型", "Agent", "智能体", "推理", "Token", "云原生", "Karmada", "调度", "私有化部署", "MCP", "推理引擎", "Token工厂"],
+      "role": "成本下降源头",
+      "hardConstraint": "Gartner 2026.8：将任务交给推理型智能体，模型服务商推理成本至少为聊天机器人的5倍，复杂任务差距更大",
+      "logic": "模型能力提升→推理成本下降→Agent Token量爆发→应用ROI改善→反向拉动算力需求",
+      "verdict": "降本需求刚性，是全链条的源头变量",
+      "star": 3,
+      "congestion": "中",
+      "tradeValue": "早期阶段，港股科技情绪弱是障碍"
+    },
+    {
+      "id": "application",
+      "idx": 8,
+      "name": "应用层",
+      "alias": ["AI应用", "AI短剧", "短剧", "漫剧", "AI视频", "内容创作", "营销", "传媒", "广告", "创新药", "AI制药", "AIDD", "机器人", "人形机器人", "具身智能", "机器人产业链", "网络安全", "AI安全", "数字人", "医疗器械", "OCR", "智能体应用"],
+      "role": "价值兑现",
+      "hardConstraint": "多数A股公司AI业务营收占比仍低，多已公告未形成规模化收入；短剧监管备案制+逐集AI标识已落地",
+      "logic": "成本崩塌→供给爆发→内容/机器人/制药/营销规模化→反向拉动Token需求",
+      "verdict": "情绪弹性最大、业绩最不确定",
+      "star": 4,
+      "congestion": "高",
+      "tradeValue": "事件驱动博弈仓，严格控仓控周期，不做价值持有"
+    }
+  ],
+  "chains": [
+    {
+      "id": "A",
+      "name": "互联瓶颈链",
+      "star": 5,
+      "path": ["万卡集群", "卡间互联成瓶颈", "铜缆失效", "光互联刚需", "CPO/NPO路线分化", "光模块/光芯片/薄膜铌酸锂/硅光", "PCB/CCL/封装基板"],
+      "status": "已验证",
+      "evidence": "华为昇腾960单台用5500个Hi-ONE光引擎替代4.8万颗800G光模块，延迟100ns→10ns",
+      "tradeValue": "★★★★★"
+    },
+    {
+      "id": "B",
+      "name": "能源卡脖子链",
+      "star": 4,
+      "path": ["算力规模扩张", "电费占运营成本>60%", "电网扩容需5-10年", "自备燃机(12-16个月交付)", "液冷热电协同", "全预制模块化"],
+      "status": "已验证",
+      "evidence": "北美已交付超1100MW模块化燃机；全球燃机排产至2030年；微软/谷歌/OpenAI已批量采购",
+      "tradeValue": "★★★★☆"
+    },
+    {
+      "id": "C",
+      "name": "成本下降链",
+      "star": 4,
+      "path": ["模型能力提升/开源", "推理成本下降", "Agent Token量爆发", "应用ROI改善", "内容/机器人/制药/营销规模化"],
+      "status": "已验证",
+      "evidence": "AI短剧成本1000→400元/分钟；人形机器人出货+300%；AI制药两日30亿美元BD",
+      "tradeValue": "★★★★☆"
+    }
+  ],
+  "tags": [
+    {"id":"optical","name":"光模块/光通信/NPO","layer":"interconnect","star":5,"congestion":"极高","rhythm":"已兑现(Q3预告)","catalyst":"GTC黄仁勋演讲 10/21","note":"瓶颈从单卡算力转移至卡间互联；海外CPO拼单卡，国产NPO拼集群互联效率"},
+    {"id":"storage","name":"存储/HBM/企业级SSD","layer":"memory","star":5,"congestion":"高","rhythm":"最快(Q4涨价传导)","catalyst":"德州仪器财报 10/21","note":"Q4合约价全面上修：企业级SSD单季涨23-28%；2027年HBM均价预计同比+121%"},
+    {"id":"aidc","name":"AIDC电力/燃机/液冷","layer":"energy","star":5,"congestion":"低","rhythm":"中(订单周期长)","catalyst":"油价破110强化自备电源逻辑","note":"最被低估的高确定性环节；全球燃机排产至2030年"},
+    {"id":"semi","name":"半导体设备/材料","layer":"chip","star":4,"congestion":"中","rhythm":"中","catalyst":"泛林集团财报 10/21","note":"涨价(光刻胶+15%/ASML零部件+10%/硅片+15-25%)+国产扩产超预期+订单外溢三重驱动"},
+    {"id":"gpu","name":"国产GPU/超节点","layer":"chip","star":4,"congestion":"高","rhythm":"中期","catalyst":"昇腾950/960持续落地","note":"单卡落后→体系能力补齐；估值上行依赖叙事能否被业绩验证"},
+    {"id":"robot","name":"智能机器人/具身智能","layer":"application","star":4,"congestion":"中","rhythm":"Q3-Q4","catalyst":"宇树大会 10/21 + 三季报 10/29","note":"上半年全球出货超2.2万台(+300%)，全球收入前五全为中国企业；景气独立于外围科技调整"},
+    {"id":"pharma","name":"AI创新药/AIDD","layer":"application","star":4,"congestion":"低","rhythm":"BD兑现","catalyst":"持续BD落地","note":"拥挤度最低+事件密度最高；全球专利悬崖驱动；适合做对冲分散"},
+    {"id":"content","name":"AI短剧/内容/营销","layer":"application","star":3,"congestion":"高","rhythm":"波动","catalyst":"《三星堆》10/23定档 + 双11","note":"上半年市场规模破220亿；降本显著(1000→400元/分钟)；但多公司业绩未兑现"},
+    {"id":"sec","name":"AI网络安全","layer":"application","star":3,"congestion":"低","rhythm":"早期","catalyst":"出口技术目录修订","note":"出口目录拟增列AI恶意代码生成技术，监管收紧催化治理需求"},
+    {"id":"agent","name":"Agent/云原生调度","layer":"model","star":3,"congestion":"中","rhythm":"早期","catalyst":"Karmada GPU DRA路线图","note":"Gartner：Agent推理成本≥聊天机器人5倍，降本需求刚性"}
+  ],
+  "risks": [
+    {"level":"高度关注","text":"GTC大会指引或科技巨头财报不及预期——费半已8连跌，情绪极度敏感，或引发二次调整","mitigation":"周三前降低算力链仓位至30%以内"},
+    {"level":"高度关注","text":"中东局势升级油价再冲高→通胀预期回升→美债收益率反弹→压制全球风险资产估值","mitigation":"注意油价对AIDC电力链是双刃剑：自备电源逻辑强化 vs 全市场估值压制"},
+    {"level":"高度关注","text":"韩股动荡传染——KOSPI单周-14.45%触发熔断，存储链情绪或二次传导","mitigation":"存储链已部分反映，需警惕二次杀跌"},
+    {"level":"适度关注","text":"Q3 GDP低于预期影响周一开盘风险偏好","mitigation":"等待GDP数据落地再决策方向"},
+    {"level":"适度关注","text":"商务部出口技术目录修订落地细则","mitigation":"利空CRO/部分出口链；利多AI安全、国产替代"},
+    {"level":"适度关注","text":"国产芯片体系叙事无法兑现","mitigation":"若2026年报营收未放量，需下调国产GPU估值预期"},
+    {"level":"适度关注","text":"AI应用业绩证伪——多公司已公告AIGC未形成规模化收入","mitigation":"小市值题材股严格控仓，不做价值持有"}
+  ]
+}

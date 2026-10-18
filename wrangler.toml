@@ -1,0 +1,22 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "quanthub"
+main = "worker/index.js"
+compatibility_date = "2025-01-01"
+# 开启 Node 兼容层，使 lib/ 下的 CommonJS require 与 JSON 引入可用
+compatibility_flags = ["nodejs_compat"]
+
+# 静态资源：与本机版共用public/ 目录，无需改动前端代码
+[assets]
+directory = "./public"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+
+[observability]
+enabled = true
+
+# 自选股等可变数据默认存内存；如需跨实例持久化可启用 KV：
+# 1) wrangler kv namespace create QH_KV
+# 2) 把返回的 id 填到下面，然后取消注释
+# [[kv_namespaces]]
+# binding = "QH_KV"
+# id = "<粘贴你的 KV namespace id>"
