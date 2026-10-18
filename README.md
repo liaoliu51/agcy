@@ -68,6 +68,12 @@ node server.js
 ## 部署到 Cloudflare Workers
 
 代码仓库：https://github.com/liaoliu51/agcy （private，分支 `main`）
+Cloudflare Account ID 已写入 `wrangler.toml`。
+
+> 📌 **首次部署前请先读 `Cloudflare部署配置.md`** —— 内含实测结论：
+> ① 本项目必须用 **Workers**（不能用 Pages，Pages 无法运行抓取与规则引擎）
+> ② GitHub 自动同步的 GitHub App 授权前置步骤
+> ③ API Token 权限配置的踩坑诊断
 
 **推荐方式：GitHub 自动同步**（配一次，以后 `git push` 即自动部署）
 

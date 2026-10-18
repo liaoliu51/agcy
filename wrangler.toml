@@ -2,6 +2,8 @@
 name = "quanthub"
 main = "worker/index.js"
 compatibility_date = "2025-01-01"
+# Cloudflare 账号 ID（Cloudflare 面板 → Workers & Pages → 右侧 Account ID，或域名概览页）
+account_id = "48ad6b3a3de73384d748a2d13042548e"
 # 开启 Node 兼容层，使 lib/ 下的 CommonJS require 与 JSON 引入可用
 compatibility_flags = ["nodejs_compat"]
 
