@@ -9,6 +9,7 @@ const path = require('path');
 const { fetchQuotes, marketSession } = require('./lib/quotes');
 const { fetchNews } = require('./lib/news');
 const { buildReport } = require('./lib/analyzer');
+const { summarize, summarizeBatch, cfg: summaryCfg } = require('./lib/summary');
 
 const ROOT = __dirname;
 const PUBLIC = path.join(ROOT, 'public');
@@ -88,6 +89,19 @@ function json(res, obj, code = 200) {
   res.end(JSON.stringify(obj));
 }
 
+/* ---------------- 请求体读取 ---------------- */
+function readBody(req, limit = 1e6) {
+  return new Promise((resolve, reject) => {
+    let body = '';
+    req.on('data', (c) => {
+      body += c;
+      if (body.length > limit) req.destroy();
+    });
+    req.on('end', () => resolve(body));
+    req.on('error', reject);
+  });
+}
+
 /* ---------------- 服务 ---------------- */
 const server = http.createServer(async (req, res) => {
   const u = new URL(req.url, `http://${req.headers.host}`);
@@ -149,11 +163,25 @@ const server = http.createServer(async (req, res) => {
         await Promise.all([refreshQuotes(), refreshNews()]);
         return json(res, { ok: true, quotes: cache.quotes.data.length, news: cache.news.data.length });
       }
+      case '/api/summary': {
+        if (!summaryCfg().enabled) return json(res, { ok: false, reason: 'not-configured', message: '未配置 AI 接口' });
+        const lang = (u.searchParams.get('lang') || 'bi').toLowerCase();
+        const body = await readBody(req);
+        let item = null;
+        try { item = body ? JSON.parse(body) : null; } catch (e) { /* ignore */ }
+        if (item && item.url) return json(res, await summarize(item, lang));
+        if (item && Array.isArray(item.list)) {
+          const limit = Math.min(parseInt(item.limit || '5', 10), 10);
+          return json(res, { ok: true, lang, results: await summarizeBatch(item.list, lang, limit) });
+        }
+        return json(res, { ok: false, reason: 'bad-request' }, 400);
+      }
       case '/api/health': {
         return json(res, {
           ok: true,
           quotes: { count: cache.quotes.data.length, at: cache.quotes.at },
           news: { count: cache.news.data.length, at: cache.news.at, failed: cache.news.failed },
+          aiSummary: { enabled: summaryCfg().enabled, model: summaryCfg().model || 'auto' },
           session: marketSession(),
           uptimeSec: Math.round(process.uptime()),
         });

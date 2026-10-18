@@ -5,6 +5,7 @@
 const S = {
   quotes: [], quotesAt: 0, prevPrice: {},
   news: [], newsAt: 0, failed: [],
+  summary: {},
   chain: null, report: null,
   watchlist: [], editingList: [], watchlistCache: [],
   directMode: false,
@@ -167,21 +168,84 @@ function renderNews() {
   if (!list.length) { $('#newsList').innerHTML = '<div class="rep-block" style="text-align:center;color:#868d95">暂无符合条件的资讯</div>'; return; }
 
   $('#newsList').innerHTML = list.map((n) => {
-    const title = n.url ? `<a href="${esc(n.url)}" target="_blank" rel="noopener">${esc(n.title)}</a>` : esc(n.title);
+    const title = n.url ? `<a href="${esc(n.url)}" target="_blank" rel="noopener noreferrer">${esc(n.title)}</a>` : esc(n.title);
     const layers = (n.layers || []).map((l) => `<span class="chip" title="关键词：${esc(l.keywords.join('、'))}">${esc(l.layerName)}</span>`).join('');
     const sentCn = { positive: '偏正面', negative: '偏负面', neutral: '中性' };
-    return `<div class="news-item ${n.tagged ? 'tagged' : ''} ${n.sentiment}">
+    const sum = S.summary[n.url || n.title];
+    return `<div class="news-item ${n.tagged ? 'tagged' : ''} ${n.sentiment}" data-sumkey="${esc(n.url || n.title)}">
       <div class="news-head">
         <div class="news-title">${title}</div>
         <span class="sent ${n.sentiment}">${sentCn[n.sentiment] || '中性'}</span>
       </div>
+      ${sum ? renderSummary(sum) : ''}
       ${n.summary ? `<div class="news-sum">${esc(n.summary.slice(0, 220))}${n.summary.length > 220 ? '…' : ''}</div>` : ''}
       <div class="news-meta">
         <span class="cat">${esc(n.category)}</span>${layers}
         <span>${esc(n.source)}</span><span>${timeStr(n.time)}</span>
+        <button class="sum-btn" data-sum="${esc(n.url || n.title)}" data-act="sum">${sum ? '重新生成摘要' : 'AI 摘要'}</button>
       </div>
     </div>`;
   }).join('');
+}
+
+/** 摘要区块渲染（双语模式：中文段 + 英文段） */
+function renderSummary(s) {
+  if (!s) return '';
+  if (s.ok === false) {
+    return `<div class="sum-box sum-err">摘要生成失败：${esc(s.message || s.reason || '未知原因')}</div>`;
+  }
+  const zh = s.zh ? `<div class="sum-zh">${esc(s.zh)}</div>` : '';
+  const en = s.en ? `<div class="sum-en"><span class="sum-lang">EN</span>${esc(s.en)}</div>` : '';
+  return `<div class="sum-box">${zh}${en}</div>`;
+}
+
+/** 请求单条摘要 */
+async function genSummary(btn) {
+  const key = btn.dataset.sum;
+  const lang = $('#sumLang').value;
+  const item = S.news.find((n) => (n.url || n.title) === key);
+  if (!item) return;
+  btn.disabled = true;
+  btn.textContent = '生成中…';
+  try {
+    const r = await api('/api/summary', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: item.url || item.title, title: item.title, summary: item.summary, layers: item.layers, source: item.source, timeStr: timeStr(item.time) }),
+    });
+    S.summary[key] = { ...r, lang };
+    if (S.currentTab === 'news') renderNews();
+  } catch (e) {
+    S.summary[key] = { ok: false, message: e.message };
+    if (S.currentTab === 'news') renderNews();
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+/** 批量生成当前列表前 N 条摘要 */
+async function genSummaryBatch() {
+  const lang = $('#sumLang').value;
+  const limit = parseInt($('#sumBatch').value || '5', 10);
+  const list = S.news.slice(0, limit);
+  if (!list.length) return;
+  const btn = $('#sumBatchBtn');
+  btn.disabled = true;
+  btn.textContent = '批量生成中…';
+  try {
+    const r = await api('/api/summary', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ list: list.map((n) => ({ url: n.url || n.title, title: n.title, summary: n.summary, layers: n.layers, source: n.source, timeStr: timeStr(n.time) })), limit }),
+    });
+    (r.results || []).forEach((x) => { S.summary[x.url] = { ...x.result, lang }; });
+  } catch (e) {
+    /* 静默 */
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '批量生成摘要';
+    if (S.currentTab === 'news') renderNews();
+  }
 }
 
 async function pollNews() {
@@ -302,7 +366,7 @@ function renderReport() {
 
     <div class="rep-block">
       <div class="rep-h">② 市场一致预期（负向情绪线索）</div>
-      ${r.marketConsensus.length ? `<ul class="mini-list">${r.marketConsensus.map((n) => `<li><span class="t">${n.url ? `<a href="${esc(n.url)}" target="_blank" rel="noopener">${esc(n.title)}</a>` : esc(n.title)}${n.layers.length ? `<span class="chip">${esc(n.layers.join('/'))}</span>` : ''}</span><span class="muted">${esc(n.source)} ${timeStr(n.time)}</span></li>`).join('')}</ul>`
+      ${r.marketConsensus.length ? `<ul class="mini-list">${r.marketConsensus.map((n) => `<li><span class="t">${n.url ? `<a href="${esc(n.url)}" target="_blank" rel="noopener noreferrer">${esc(n.title)}</a>` : esc(n.title)}${n.layers.length ? `<span class="chip">${esc(n.layers.join('/'))}</span>` : ''}</span><span class="muted">${esc(n.source)} ${timeStr(n.time)}</span></li>`).join('')}</ul>`
         : '<div class="muted">当前未抓取到明显负向情绪资讯。</div>'}
     </div>
 
@@ -398,6 +462,14 @@ $('#btnSaveWatch').addEventListener('click', async () => {
 $('#fltSearch').addEventListener('input', renderQuotes);
 $('#onlyIdx').addEventListener('change', renderQuotes);
 ['#nCat', '#nLayer'].forEach((s) => $(s).addEventListener('change', renderNews));
+
+// AI 摘要：事件委托（列表内容会重渲染，不能直接绑定）
+$('#newsList').addEventListener('click', (e) => {
+  const btn = e.target.closest('.sum-btn');
+  if (btn) genSummary(btn);
+});
+$('#sumBatchBtn').addEventListener('click', genSummaryBatch);
+$('#sumLang').addEventListener('change', renderNews);
 $('#nTagged').addEventListener('change', renderNews);
 $('#btnRefresh').addEventListener('click', async () => {
   $('#btnRefresh').textContent = '刷新中…';

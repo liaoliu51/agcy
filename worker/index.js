@@ -21,12 +21,14 @@
 import quotes from '../lib/quotes.js';
 import newsLib from '../lib/news.js';
 import analyzer from '../lib/analyzer.js';
+import summaryLib from '../lib/summary.js';
 import chain from '../data/chain.json';
 import mapping from '../data/mapping.json';
 
 const { fetchQuotes, marketSession } = quotes;
 const { fetchNews } = newsLib;
 const { buildReport } = analyzer;
+const { summarize, summarizeBatch, cfg: summaryCfg } = summaryLib;
 
 /* ---------------- 缓存 ---------------- */
 const QUOTES_TTL = 4000;   // 5秒刷新要求 → 服务端 4s 兜底
@@ -156,12 +158,29 @@ async function handleApi(pathname, search, request) {
     return json({ ok: true, quotes: state.quotes.data.length, news: state.news.data.length });
   }
 
+  if (pathname === '/api/summary') {
+    // AI 摘要：单条（给 url）或批量（给 list / 直接用当前缓存）
+    if (!summaryCfg().enabled) {
+      return json({ ok: false, reason: 'not-configured', message: '未配置 AI 接口' }, 200);
+    }
+    const lang = (search.get('lang') || 'bi').toLowerCase();
+
+    const item = await request.json().catch(() => null);
+    if (item && item.url) return json(await summarize(item, lang));
+    if (item && Array.isArray(item.list)) {
+      const limit = Math.min(parseInt(item.limit || '5', 10), 10);
+      return json({ ok: true, lang, results: await summarizeBatch(item.list, lang, limit) });
+    }
+    return json({ ok: false, reason: 'bad-request' }, 400);
+  }
+
   if (pathname === '/api/health') {
     return json({
       ok: true,
       runtime: 'cloudflare-worker',
       quotes: { count: state.quotes.data.length, at: state.quotes.at, err: state.quotes.err },
       news: { count: state.news.data.length, at: state.news.at, failed: state.news.failed, err: state.news.err },
+      aiSummary: { enabled: summaryCfg().enabled, model: summaryCfg().model || 'auto' },
       session: marketSession(),
     });
   }

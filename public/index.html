@@ -59,6 +59,17 @@
         <select id="nCat"><option value="">全部分类</option><option>科技产业</option><option>宏观政策</option><option>市场</option><option>行业</option><option>宏观</option></select>
         <select id="nLayer"><option value="">全部产业链层</option></select>
         <label class="chk"><input type="checkbox" id="nTagged"> 仅看命中产业链</label>
+        <select id="sumLang" title="摘要语言模式">
+          <option value="bi">AI摘要·中英双语</option>
+          <option value="zh">AI摘要·仅中文</option>
+          <option value="en"> AI摘要·仅英文</option>
+        </select>
+        <select id="sumBatch" title="批量生成条数">
+          <option value="3">前3条</option>
+          <option value="5" selected>前5条</option>
+          <option value="10">前10条</option>
+        </select>
+        <button id="sumBatchBtn" class="btn-ai">批量生成摘要</button>
       </div>
       <div class="toolbar-right"><span class="muted" id="newsStat"></span></div>
     </div>
