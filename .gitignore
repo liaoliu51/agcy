@@ -7,3 +7,8 @@ hub.err
 .env
 .env.*
 dev.vars
+# 临时探测文件
+_m*.json
+_*.txt
+_p.json
+_*.tmp
